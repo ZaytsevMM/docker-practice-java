@@ -1,0 +1,41 @@
+version: "3.0"
+
+networks:
+      docker-practice-net:
+
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: school
+      POSTGRES_DB: school
+    volumes:
+      - ../../data/postgres:/var/lib/postgresql/data
+      - ../../data/dump:/db-dump
+    networks:
+      - docker-practice-net
+  redis:
+    restart: always
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - docker-practice-net
+  app:
+    build: ./images/app/.
+    volumes:
+      - ../../:/app
+    ports:
+      - "8888:8080"
+    depends_on:
+      - postgres
+      - redis
+    links:
+      - postgres
+      - redis
+    networks:
+      - docker-practice-net
